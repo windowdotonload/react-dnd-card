@@ -1,0 +1,14 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.card{
+    background-color: salmon;
+    width: 200px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 10px;
+    margin: 10px;
+    cursor: pointer;
+    text-align: center;
+}
