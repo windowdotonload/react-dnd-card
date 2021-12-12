@@ -21,7 +21,19 @@ const Card = ({ text, id, index }) => {
       };
     },
   }));
+  const [collectedProps, drop] = useDrop(() => ({
+    accept: ITEMTYPES.CARD,
+    hover: (item, monitor) => {
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      console.log("thsi si monitor ", monitor);
+
+      if (dragIndex == hoverIndex) return;
+      console.log(dragIndex, hoverIndex);
+    },
+  }));
   drag(ref);
+  drop(ref);
   const opacity = isDragging ? 0.1 : 1;
   return (
     <div ref={ref} className={styles.card} style={{ opacity }}>
