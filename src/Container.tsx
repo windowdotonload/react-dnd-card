@@ -1,12 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { DndProvider } from "react-dnd";
+import { DndProvider, useDrag, useDrop } from "react-dnd";
 import styles from "./index.module.css";
-import { useDrag, useDrop } from "react-dnd";
 
-const Card = ({ text }) => {
+const ITEMTYPES = {
+  CARD: "card",
+};
+
+const Card = ({ text, id, index }) => {
+  const ref = useRef(null);
+  const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
+    type: ITEMTYPES.CARD,
+    item: () => ({
+      id,
+      index,
+    }),
+    collect: (monitor, props) => {
+      return {
+        isDragging: monitor.isDragging(),
+      };
+    },
+  }));
+  drag(ref);
+  const opacity = isDragging ? 0.1 : 1;
   return (
-    <div className={styles.card}>
+    <div ref={ref} className={styles.card} style={{ opacity }}>
       <p>{text}</p>
     </div>
   );
@@ -20,8 +38,8 @@ export const Container = (props) => {
   ]);
   return (
     <DndProvider backend={HTML5Backend}>
-      {state.map((item) => (
-        <Card key={item.id} text={item.text} />
+      {state.map((item, index) => (
+        <Card key={item.id} text={item.text} id={item.id} index={index} />
       ))}
     </DndProvider>
   );
