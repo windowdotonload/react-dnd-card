@@ -7,13 +7,16 @@ const ITEMTYPES = {
   CARD: "card",
 };
 
-const Card = ({ text, id, index }) => {
+const Card = ({ text, id, index, moveCard }) => {
+  console.log("this si text an index", text, index);
+
   const ref = useRef(null);
   const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
     type: ITEMTYPES.CARD,
     item: () => ({
       id,
       index,
+      text,
     }),
     collect: (monitor, props) => {
       return {
@@ -24,12 +27,20 @@ const Card = ({ text, id, index }) => {
   const [collectedProps, drop] = useDrop(() => ({
     accept: ITEMTYPES.CARD,
     hover: (item, monitor) => {
+      //   console.log("ite", item);
+
       const dragIndex = item.index;
       const hoverIndex = index;
-      console.log("thsi si monitor ", monitor);
-
       if (dragIndex == hoverIndex) return;
-      console.log(dragIndex, hoverIndex);
+      const { top, bottom } = ref.current.getBoundingClientRect();
+      const { x, y } = monitor.getClientOffset();
+      if (
+        (hoverIndex < dragIndex && y > top + 10) ||
+        (hoverIndex > dragIndex && y < bottom - 10)
+      ) {
+        moveCard(dragIndex, hoverIndex, item);
+        item.index = hoverIndex;
+      }
     },
   }));
   drag(ref);
@@ -48,10 +59,25 @@ export const Container = (props) => {
     { id: "card2", text: "CARD-SEC" },
     { id: "card3", text: "CARD-THR" },
   ]);
+  const moveCard = (dragIndex, hoverIndex, item) => {
+    console.log("this is item =====>", dragIndex, hoverIndex);
+    const tmpObj = state[dragIndex];
+    const tmpArr = state.slice();
+    tmpArr.splice(dragIndex, 1);
+    tmpArr.splice(hoverIndex, 0, tmpObj);
+
+    setState(tmpArr);
+  };
   return (
     <DndProvider backend={HTML5Backend}>
       {state.map((item, index) => (
-        <Card key={item.id} text={item.text} id={item.id} index={index} />
+        <Card
+          key={item.id + index}
+          text={item.text}
+          id={item.id}
+          index={index}
+          moveCard={moveCard}
+        />
       ))}
     </DndProvider>
   );
